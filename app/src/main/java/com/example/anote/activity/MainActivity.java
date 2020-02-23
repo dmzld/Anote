@@ -1,14 +1,20 @@
 package com.example.anote.activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -38,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        permissionCheck();
 
         mBtnMenu = findViewById(R.id.btnMenu);
         mBtnSearch = findViewById(R.id.btnSearch);
@@ -109,5 +117,45 @@ public class MainActivity extends AppCompatActivity {
             });
             memoAdapter.notifyDataSetChanged();
         }
+    }
+
+    public void permissionCheck() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            ArrayList<String> arrayPermission = new ArrayList<>();
+
+            int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                arrayPermission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+            permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                arrayPermission.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+            if (arrayPermission.size() > 0) {
+                String[] strArray = new String[arrayPermission.size()];
+                strArray = arrayPermission.toArray(strArray);
+                ActivityCompat.requestPermissions(this, strArray, 1000);
+            }
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1000:
+                if (grantResults.length < 1) {
+                    Toast.makeText(this, "Failed get permission", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                for (int i = 0; i < grantResults.length; i++) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(this, "Permission is denied : " + permissions[i], Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                Toast.makeText(this, "Permission is granted", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
