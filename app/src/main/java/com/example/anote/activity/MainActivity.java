@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
     Button mBtnMenu;
     Button mBtnSearch;
-    Button mBtnViewSetting;
     Button mBtnNewMemo;
     RecyclerView recyclerView;
 
@@ -42,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
 
         mBtnMenu = findViewById(R.id.btnMenu);
         mBtnSearch = findViewById(R.id.btnSearch);
-        mBtnViewSetting = findViewById(R.id.btnViewSetting);
         mBtnNewMemo = findViewById(R.id.btnNewMemo);
 
         mBtnNewMemo.setOnClickListener(new View.OnClickListener() {

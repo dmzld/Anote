@@ -9,35 +9,35 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize">
-        <Button
-            android:id="@+id/btnSetTextColor"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@color/colorAccent"/>
 
         <Button
             android:id="@+id/btnSaveMemo"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@color/cardview_dark_background"/>
+            android:background="@drawable/save"
+            android:layout_gravity="right"
+            android:layout_margin="14dp"/>
 
         <Button
             android:id="@+id/btnLoadImage"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@color/colorPrimary"/>
+            android:background="@drawable/allbum"
+            android:layout_gravity="right"/>
     </androidx.appcompat.widget.Toolbar>
     
     <EditText
         android:id="@+id/memoTitle"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:background="@null"
-        android:hint="제목"/>
+        android:hint="제목"
+        android:padding="14dp"/>
     <EditText
         android:id="@+id/memoContents"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
-        android:hint="본문"/>
+        android:hint="본문"
+        android:padding="14dp"/>
 </LinearLayout>

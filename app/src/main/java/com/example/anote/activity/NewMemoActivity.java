@@ -1,10 +1,12 @@
 package com.example.anote.activity;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import io.realm.Realm;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,8 +19,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class NewMemoActivity extends AppCompatActivity {
+    public static final int PICK_ALBUM = 1000;
 
-    Button mBtnSetTextColor;
     Button mBtnSaveMemo;
     Button mBtnLoadImage;
 
@@ -33,7 +35,6 @@ public class NewMemoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_memo);
 
-        mBtnSetTextColor = findViewById(R.id.btnSetTextColor);
         mBtnSaveMemo = findViewById(R.id.btnSaveMemo);
         mBtnLoadImage = findViewById(R.id.btnLoadImage);
         mMemoTitle = findViewById(R.id.memoTitle);
@@ -44,6 +45,14 @@ public class NewMemoActivity extends AppCompatActivity {
         mMemoTitle.setText(intent.getStringExtra("title"));
         mMemoContents.setText(intent.getStringExtra("memoTextContents"));
         id = intent.getStringExtra("id");
+
+        mBtnLoadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, PICK_ALBUM);
+            }
+        });
 
         mBtnSaveMemo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,5 +85,13 @@ public class NewMemoActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == PICK_ALBUM){
+
+        }
     }
 }
