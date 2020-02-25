@@ -13,12 +13,14 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.text.Html;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.util.Log;
@@ -82,7 +84,6 @@ public class NewMemoActivity extends AppCompatActivity {
 
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 date = df.format(calendar.getTime());
-                Log.i("ddd",date);
                 title = mMemoTitle.getText().toString();
                 textContents = mMemoContents.getText().toString(); // +image
 
@@ -108,12 +109,14 @@ public class NewMemoActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(pictureSelected(resultCode, data)){
-            Uri imageUri = data.getData();
+            Uri imageUri = data.getData(); // 선택한 data(image) Uri
+
+            // 각도 조정
             ExifInterface oldExif = null;
             String exifOrientation;
             int degree = 0;
             try {
-                oldExif = new ExifInterface(getRealPathFromUri(getApplicationContext(),imageUri));
+                oldExif = new ExifInterface(getRealPathFromUri(getApplicationContext(),imageUri)); // realPathFromUri : 실제 사진 path
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -121,11 +124,11 @@ public class NewMemoActivity extends AppCompatActivity {
             if (exifOrientation != null) degree = getOrientation(Integer.parseInt(exifOrientation));
 
             try {
-                Bitmap resize = getBitmapFromUri(data.getData());
-                resize = RotateBitmap(resize, degree);
-                imageUri = getImageUri(getApplicationContext(), resize);
+                Bitmap resize = getBitmapFromUri(data.getData()); // bitmap
+                resize = RotateBitmap(resize, degree); // 사진 줄이기
+                imageUri = getImageUri(getApplicationContext(), resize); // 다시 Uri
 
-                insertImageToCurrentSelection(resize);
+                insertImageToCurrentSelection(new BitmapDrawable(this.getResources(), resize));
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -136,11 +139,24 @@ public class NewMemoActivity extends AppCompatActivity {
         return resultCode == RESULT_OK && data != null;
     }
 
-    public void insertImageToCurrentSelection(Bitmap Bitmap) {
-        Drawable drawable = new BitmapDrawable(this.getResources(), Bitmap);
+    public void insertImageToCurrentSelection(Drawable drawable) {
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        ImageSpan imageSpan = new ImageSpan(drawable);
 
-        // continue..
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        builder.append(mMemoContents.getText());
+
+        String imgId = "img";
+
+        int selStart = mMemoContents.getSelectionStart();
+
+        // current selection is replaceв with imageId
+        builder.replace(mMemoContents.getSelectionStart(), mMemoContents.getSelectionEnd(), imgId);
+
+        // This adds a span to display image where the imageId is. If you do builder.toString() - the string will contain imageId where the imageSpan is.
+        // you can use it later - if you want to find location of imageSpan in text;
+        builder.setSpan(imageSpan, selStart, selStart + imgId.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mMemoContents.setText(builder);
     }
 
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
@@ -156,7 +172,6 @@ public class NewMemoActivity extends AppCompatActivity {
         int height = opts.outHeight;
 
         float sampleRatio = getSampleRatio(width, height);
-
         opts.inJustDecodeBounds=false;
         opts.inSampleSize=(int)sampleRatio;
 
@@ -167,9 +182,10 @@ public class NewMemoActivity extends AppCompatActivity {
 
     private float getSampleRatio(int width, int height) {
         //상한
-        final int targetWidth = 1280;
-        final int targetHeight = 1280;
-
+        final int targetWidth = mMemoContents.getWidth();
+        final int targetHeight = mMemoContents.getHeight();
+        Log.i("ddd2",width +"vs"+targetWidth);
+        Log.i("ddd2",height +"vs"+targetHeight);
         float ratio;
 
         if(width > height){
